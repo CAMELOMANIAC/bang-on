@@ -5,7 +5,7 @@ import ChannelCard from "./component/ChannelCard";
 import broadReadyImage from "./img/broadReady.svg";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { searchTypeState, showLiveState, steamingServiceState, subscribedChannelState } from "./globalState/atom";
-import { getLocalStorageToArray } from "./publicFunction/getLocalStorageToState";
+import { getLocalStorageToArray } from "./publicFunction/getLocalStorageToArray";
 
 function App() {
 	const [searchQuery, setSearchQuery] = useState("");

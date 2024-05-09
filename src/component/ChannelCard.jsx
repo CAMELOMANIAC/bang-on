@@ -3,7 +3,7 @@ import "./ChannelCard.css";
 import { useColor } from 'color-thief-react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { showLiveState, steamingServiceState, subscribedChannelState } from '../globalState/atom';
-import { getLocalStorageToArray } from '../publicFunction/getLocalStorageToState';
+import { getLocalStorageToArray } from '../publicFunction/getLocalStorageToArray';
 
 const ChannelCard = ({ liveImage, channelImage, info }) => {
     const [imageSrc, setImageSrc] = useState(null);
