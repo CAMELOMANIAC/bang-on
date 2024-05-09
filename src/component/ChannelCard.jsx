@@ -4,14 +4,60 @@ import { useColor } from 'color-thief-react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { showLiveState, steamingServiceState, subscribedChannelState } from '../globalState/atom';
 import { getLocalStorageToArray } from '../publicFunction/getLocalStorageToArray';
+import broadReadyImage from "../img/broadReady.svg";
+import convertJSONPToJSON from '../publicFunction/convertJSONPToJSON';
+import { useQuery } from 'react-query';
 
-const ChannelCard = ({ liveImage, channelImage, info }) => {
+
+const fetchAfreecaLiveData = async (searchQuery) => {
+    return fetch(
+        `https://sch.afreecatv.com/api.php?callback=jQuery1102029730713549332743_1714718653058&m=liveSearch&v=1.0&szOrder=&c=UTF-8&szKeyword=${encodeURIComponent(
+            searchQuery
+        )}&nPageNo=1&nListCnt=1&hl=1&onlyParent=1&tab=LIVE&location=total_search`
+    )
+        .then((response) => response.text())
+        .then((text) => {
+            const jsonText = convertJSONPToJSON(text);
+            const data = JSON.parse(jsonText);
+            return data;
+        });
+};
+
+const ChannelCard = ({ channelImage, info }) => {
+    const [liveImage, setLiveImage] = useState(info.liveImage || broadReadyImage);
     const [imageSrc, setImageSrc] = useState(null);
     const { data } = useColor(imageSrc, 'rgbString');
     const [afreecaImage, setAfreecaImage] = useState(null);
     const isShowLive = useRecoilValue(showLiveState);
-    const [steamingService, setSteamingService] = useRecoilState(steamingServiceState);
-    const [subscribedChannel, setSubscribedChannel] = useRecoilState(subscribedChannelState);
+    const steamingService = useRecoilValue(steamingServiceState);
+    const [_subscribedChannel, setSubscribedChannel] = useRecoilState(subscribedChannelState);// eslint-disable-line no-unused-vars
+    const [isQueryEnabled, setIsQueryEnabled] = useState(false);
+
+    const { data: afreecaLiveData, isSuccess } = useQuery(['afreecaLiveData', info.channelName + info.platform],
+        () => fetchAfreecaLiveData(info.channelName),
+        { enabled: isQueryEnabled, onSuccess: (data) => (setIsQueryEnabled(false)) })
+
+    //const {data: chzzkLiveData} = useQuery(['chzzkLiveData', info.channelName + info.platform])
+    useEffect(() => {
+        if (info.platform === "afreeca") {
+            setIsQueryEnabled(true);
+        }
+        if (info.platform === "chzzk") {
+
+        }
+    }, [])// eslint-disable-line react-hooks/exhaustive-deps
+
+    useEffect(() => {
+        if (isSuccess && info?.platform === "afreeca") {
+            if (afreecaLiveData.REAL_BROAD) {
+                const liveData = afreecaLiveData.REAL_BROAD[0];
+                if ((liveData?.user_nick === info.channelName) && liveData) {
+                    setLiveImage(liveData.broad_img);
+                    info.liveTitle = liveData.broad_title;
+                }
+            }
+        }
+    }, [isSuccess])// eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         let imageSrc = liveImage;

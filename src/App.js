@@ -1,68 +1,26 @@
-import { useQueries, useQuery } from "react-query";
+import { useQueries } from "react-query";
 import "./App.css";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import ChannelCard from "./component/ChannelCard";
-import broadReadyImage from "./img/broadReady.svg";
 import { useRecoilState, useSetRecoilState } from "recoil";
 import { searchTypeState, showLiveState, steamingServiceState, subscribedChannelState } from "./globalState/atom";
 import { getLocalStorageToArray } from "./publicFunction/getLocalStorageToArray";
+import { fetchAfreecaData, fetchChzzkData } from "./publicFunction/fetchStreamingData";
+
+const streamService = ["chzzk", "afreeca"];
 
 function App() {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [count, setCount] = useState(0);
-	const resultsRef = useRef([]);
 	const [date, setDate] = useState(new Date());
-	const afreecaLiveChannelData = useRef([]);
 	const setIsShowLive = useSetRecoilState(showLiveState);
 	const [searchType, setSearchType] = useRecoilState(searchTypeState);
 	const [steamingService, setSteamingService] = useRecoilState(steamingServiceState);
-	const [subscribedChannel, setSubscribedChannel] = useRecoilState(subscribedChannelState);
-
-	const convertJSONPToJSON = (jsonp) => {
-		return jsonp.replace(/^[^\(]+\((.*)\)$/, "$1");
-	};
-
-	const fetchAfreecaData = async (searchQuery) => {
-		return fetch(
-			//아프리카는 자체적으로 cors에 제한을 받지 않게 JSONP 형식이므로 fetch로 받아온 후 JSONP 형식을 JSON으로 변환
-			`https://sch.afreecatv.com/api.php?callback=jQuery11020675609536225807_1714723793705&m=bjSearch&v=2.0&szOrder=&szKeyword=${encodeURIComponent(
-				searchQuery
-			)}&nPageNo=1&nListCnt=10&szType=json&c=UTF-8&tab=BJ&location=total_search`
-		)
-			.then((response) => response.text())
-			.then((text) => {
-				const jsonText = convertJSONPToJSON(text);
-				const data = JSON.parse(jsonText);
-				return data;
-			});
-	};
-
-	const fetchAfreecaLiveData = async (searchQuery) => {
-		return fetch(
-			`https://sch.afreecatv.com/api.php?callback=jQuery1102029730713549332743_1714718653058&m=liveSearch&v=1.0&szOrder=&c=UTF-8&szKeyword=${encodeURIComponent(
-				searchQuery
-			)}&nPageNo=1&nListCnt=40&hl=1&onlyParent=1&tab=LIVE&location=total_search`
-		)
-			.then((response) => response.text())
-			.then((text) => {
-				const jsonText = convertJSONPToJSON(text);
-				const data = JSON.parse(jsonText);
-				return data.REAL_BROAD;
-			});
-	};
-
-	const fetchChzzkData = async (searchQuery) => {
-		return fetch(
-			//치지직은 cors 규약 때문에 프록시를 사용해야함
-			`/chzzk_api/service/v1/search/channels?keyword=${encodeURIComponent(
-				searchQuery
-			)}&offset=0&size=13&withFirstChannelContent=true`
-		).then((response) => response.json());
-	};
+	const [_subscribedChannel, setSubscribedChannel] = useRecoilState(subscribedChannelState); // eslint-disable-line no-unused-vars
 
 	const queries = [
 		{
-			queryKey: "chzzk",
+			queryKey: ["chzzk"],
 			queryFn: () => fetchChzzkData(searchQuery),
 			enabled: false,
 			onSuccess: () => {
@@ -70,30 +28,15 @@ function App() {
 			}
 		},
 		{
-			queryKey: "afreeca",
+			queryKey: ["afreeca"],
 			queryFn: () => fetchAfreecaData(searchQuery),
 			enabled: false,
 			onSuccess: () => {
 				setDate(new Date());
 			}
-		},
-		{
-			queryKey: "afreecaLive",
-			queryFn: () => fetchAfreecaLiveData(searchQuery),
-			enabled: false,
-			onSuccess: (data) => {
-				setDate(new Date());
-				afreecaLiveChannelData.current = data;
-			},
-			onError: (error) => {
-				console.error(error);
-			}
 		}
 	];
-
-	const streamService = ["chzzk", "afreeca"];
-
-	resultsRef.current = useQueries(queries);
+	const searchChannelData = useQueries(queries);
 
 	useEffect(() => {
 		//로컬스토리지의 스트리머 구독 정보를 가져옴
@@ -119,17 +62,20 @@ function App() {
 			queryFn
 		};
 	});
-	const results = useQueries(subscibeQueries);
 
-	// useEffect(() => {
-	// 	console.log(results.map((result, _index) => result.data));
-	// }, [results]);
+	const subscribedChannelData = useQueries(subscibeQueries);
+
+	const streamServiceOnChangeHandler = (service) => {
+		setSteamingService((prev) =>
+			prev.some((item) => item === service) ? prev.filter((item) => item !== service) : [...prev, service]
+		);
+	};
 
 	return (
 		<div className="App">
 			<header className="App-header">
 				<input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-				<button onClick={() => resultsRef.current.forEach((result) => result.refetch())}>검색</button>
+				<button onClick={() => searchChannelData.forEach((result) => result.refetch())}>검색</button>
 				{count}
 				<button onClick={() => setCount((prev) => prev - 1)}>빼기</button>
 				<button onClick={() => setCount((prev) => prev + 1)}>더하기</button>
@@ -143,77 +89,79 @@ function App() {
 							type="checkbox"
 							checked={steamingService.some((item) => item === service)}
 							id={service}
-							onChange={() =>
-								setSteamingService((prev) =>
-									prev.some((item) => item === service)
-										? prev.filter((item) => item !== service)
-										: [...prev, service]
-								)
-							}
+							onChange={() => streamServiceOnChangeHandler(service)}
 						></input>
 						<label htmlFor={service}>{service}</label>
 					</Fragment>
 				))}
+
 				<select value={searchType} onChange={(e) => setSearchType(e.target.value)}>
 					<option value="channelName">채널명</option>
 				</select>
+
 				<div className="subscribe_container">
-					{results.length &&
-						results.map((result, index) =>
+					{subscribedChannelData.length &&
+						subscribedChannelData.map((result, index) =>
 							result.data && Object.keys(result.data).includes("content") ? (
-								<Fragment key={index}>
-									<ChannelCard
-										key={index}
-										liveImage={
-											result.data.content.data[0]?.content?.live?.liveImageUrl
-												? `${result.data.content.data[0]?.content?.live?.liveImageUrl.replace(
-														"{type}",
-														"480"
-												  )}`
-												: broadReadyImage
-										}
-										channelImage={
-											result.data.content.data[0]?.channel.channelImageUrl
-												? result.data.content.data[0]?.channel.channelImageUrl
-												: null
-										}
-										info={{
-											platform: "chzzk",
-											channelName: result.data.content.data[0]?.channel.channelName,
-											liveTitle:
-												result.data.content.data[0]?.content?.live &&
-												result.data.content.data[0]?.content?.live?.liveTitle,
-											openDate:
-												result.data.content.data[0]?.content?.live &&
-												result.data.content.data[0]?.content?.live?.openDate,
-											adult:
-												result.data.content.data[0]?.content?.live?.adult &&
-												result.data.content.data[0]?.content?.live?.adult
-										}}
-									></ChannelCard>
-								</Fragment>
+								result.data.content.data[0]?.channel.channelName ===
+								JSON.parse(Object.values(localStorage)[index]).channelName ? (
+									<Fragment key={index}>
+										<ChannelCard
+											key={index}
+											channelImage={
+												result.data.content.data[0]?.channel.channelImageUrl
+													? result.data.content.data[0]?.channel.channelImageUrl
+													: null
+											}
+											info={{
+												platform: "chzzk",
+												liveImage: result.data.content.data[0]?.content?.live?.liveImageUrl
+													? `${result.data.content.data[0]?.content?.live?.liveImageUrl.replace(
+															"{type}",
+															"480"
+													  )}`
+													: undefined,
+												channelName: result.data.content.data[0]?.channel.channelName,
+												liveTitle:
+													result.data.content.data[0]?.content?.live &&
+													result.data.content.data[0]?.content?.live?.liveTitle,
+												openDate:
+													result.data.content.data[0]?.content?.live &&
+													result.data.content.data[0]?.content?.live?.openDate,
+												adult:
+													result.data.content.data[0]?.content?.live?.adult &&
+													result.data.content.data[0]?.content?.live?.adult
+											}}
+										></ChannelCard>
+									</Fragment>
+								) : (
+									//치지직 통합검색에는 출력되지만 개별검색에서 출력되지 않는 경우
+									<Fragment key={index}>
+										<ChannelCard
+											key={index}
+											channelImage={
+												result.data.content.data[0]?.channel.channelImageUrl
+													? result.data.content.data[0]?.channel.channelImageUrl
+													: null
+											}
+											info={{
+												platform: "chzzk",
+												channelName: JSON.parse(Object.values(localStorage)[index]).channelName,
+												liveTitle: false,
+												openDate: false,
+												adult: false
+											}}
+										></ChannelCard>
+									</Fragment>
+								)
 							) : (
 								<Fragment key={index}>
 									<ChannelCard
 										key={index}
-										liveImage={
-											afreecaLiveChannelData.current.find(
-												(channel) => channel.user_nick === result.data?.DATA[0].user_nick
-											)?.broad_img || broadReadyImage
-										}
 										channelImage={result.data?.DATA[0].station_logo}
 										info={{
 											platform: "afreeca",
-											channelName: result.data?.DATA[0].user_nick,
-											liveTitle: (
-												afreecaLiveChannelData.current.find(
-													(channel) => channel.user_nick === result.data?.DATA[0].user_nick
-												) || { broad_title: null }
-											).broad_title,
-											openDate:
-												afreecaLiveChannelData.current.find(
-													(channel) => channel.user_nick === result.data?.DATA[0].user_nick
-												)?.broad_start || null
+											channelName: result.data?.DATA[0].user_nick
 										}}
 									></ChannelCard>
 								</Fragment>
@@ -222,8 +170,8 @@ function App() {
 				</div>
 
 				<div className="search_container">
-					{resultsRef.current &&
-						resultsRef.current.map((result, index) => {
+					{searchChannelData &&
+						searchChannelData.map((result, index) => {
 							if (!result.isSuccess) return null;
 							if (index === 0) {
 								return (
@@ -231,11 +179,6 @@ function App() {
 										{result.data.content?.data.map((item, index) => (
 											<ChannelCard
 												key={index}
-												liveImage={
-													item.content?.live?.liveImageUrl
-														? `${item.content?.live?.liveImageUrl.replace("{type}", "480")}`
-														: broadReadyImage
-												}
 												channelImage={
 													item.channel.channelImageUrl ? item.channel.channelImageUrl : null
 												}
@@ -244,7 +187,10 @@ function App() {
 													channelName: item.channel.channelName,
 													liveTitle: item.content?.live && item.content?.live?.liveTitle,
 													openDate: item.content?.live && item.content?.live?.openDate,
-													adult: item.content?.live?.adult && item.content?.live?.adult
+													adult: item.content?.live?.adult && item.content?.live?.adult,
+													liveImage: item.content?.live?.liveImageUrl
+														? `${item.content?.live?.liveImageUrl.replace("{type}", "480")}`
+														: undefined
 												}}
 											></ChannelCard>
 										))}
@@ -257,24 +203,10 @@ function App() {
 										{result.data.DATA.map((item, index) => (
 											<ChannelCard
 												key={index}
-												liveImage={
-													afreecaLiveChannelData.current.find(
-														(channel) => channel.user_nick === item.user_nick
-													)?.broad_img || broadReadyImage
-												}
 												channelImage={item.station_logo}
 												info={{
 													platform: "afreeca",
-													channelName: item.user_nick,
-													liveTitle: (
-														afreecaLiveChannelData.current.find(
-															(channel) => channel.user_nick === item.user_nick
-														) || { broad_title: null }
-													).broad_title,
-													openDate:
-														afreecaLiveChannelData.current.find(
-															(channel) => channel.user_nick === item.user_nick
-														)?.broad_start || null
+													channelName: item.user_nick
 												}}
 											></ChannelCard>
 										))}
