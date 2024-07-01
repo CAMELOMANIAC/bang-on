@@ -1,4 +1,4 @@
-import convertJSONPToJSON from "./convertJSONPToJSON";
+import { convertJSONPToJSON } from "./common";
 
 export const fetchAfreecaData = async (searchQuery) => {
 	return fetch(
@@ -10,7 +10,7 @@ export const fetchAfreecaData = async (searchQuery) => {
 		.then((response) => response.text())
 		.then((text) => {
 			const jsonText = convertJSONPToJSON(text);
-			const data = JSON.parse(jsonText);
+			const data = JSON.parse(jsonText).DATA;
 			return data;
 		});
 };
@@ -21,5 +21,21 @@ export const fetchChzzkData = async (searchQuery) => {
 		`/chzzk_api/service/v1/search/channels?keyword=${encodeURIComponent(
 			searchQuery
 		)}&offset=0&size=13&withFirstChannelContent=true`
-	).then((response) => response.json());
+	)
+		.then((response) => response.json())
+		.then((data) => data.content.data);
+};
+
+export const fetchAfreecaLiveData = async (searchQuery) => {
+	return fetch(
+		`https://sch.afreecatv.com/api.php?callback=jQuery1102029730713549332743_1714718653058&m=liveSearch&v=1.0&szOrder=&c=UTF-8&szKeyword=${encodeURIComponent(
+			searchQuery
+		)}&nPageNo=1&nListCnt=40&hl=1&onlyParent=1&tab=LIVE&location=total_search`
+	)
+		.then((response) => response.text())
+		.then((text) => {
+			const jsonText = convertJSONPToJSON(text);
+			const data = JSON.parse(jsonText);
+			return data.REAL_BROAD;
+		});
 };
