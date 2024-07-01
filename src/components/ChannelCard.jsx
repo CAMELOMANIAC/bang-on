@@ -1,15 +1,18 @@
+//@ts-check
 import { useEffect, useState } from "react";
 import "../styles/ChannelCard.css";
 import { useColor } from 'color-thief-react';
+import { getLocalStorageToArray } from "../utils/function/common";
+import React from "react";
 //import { getLocalStorageToArray } from '../utils/function/common';
 
 const ChannelCard = ({ data }) => {
-    // const currnetTime = new Date().getTime();
-    // const openTime = new Date(info.openDate).getTime();
-    // const diffTime = Math.floor((currnetTime - openTime) / 1000 / 60);
+    const currnetTime = new Date().getTime();
+    const openTime = new Date(data.openDate).getTime();
+    const diffTime = Math.floor((currnetTime - openTime) / 1000 / 60);
 
     //아프리카는 채널 이미지가 가짜일때 빈 이미지로 처리
-    const [afreecaImage, setAfreecaImage] = useState(null);
+    const [afreecaImage, setAfreecaImage] = useState('');
     useEffect(() => {
         if (data.platform === 'afreeca') {
             fetch(data.imageUrl).then(response => {
@@ -23,8 +26,8 @@ const ChannelCard = ({ data }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data.platform]);
 
-    //치지직은 라이브 이미지의 src를 변경해야함
-    const [liveImage, setLiveImage] = useState();
+    //치지직은 라이브 이미지의 src를 변경해야함(cors때문에 프록시를 거치도록 변경)
+    const [liveImage, setLiveImage] = useState("/img/broadReady.svg");
     useEffect(() => {
         if (data.platform === 'chzzk') {
             const replaceUrl = data.liveImageUrl ? (data.liveImageUrl).replace('{type}', '480') : '/img/broadReady.svg';
@@ -34,10 +37,30 @@ const ChannelCard = ({ data }) => {
             setLiveImage(data.liveImageUrl || '/img/broadReady.svg');
     }, [data.liveImageUrl, data.platform])
 
-    const { data: color, } = useColor(liveImage, 'hex', {
+    const { data: color, } = useColor(liveImage, 'rgbString', {
         crossOrigin: 'anonymous',
         quality: 10,
     });
+
+    const rgbValues = color?.replace('rgb(', '').replace(')', '').split(',').map(Number);
+    const averageColor = rgbValues && (rgbValues.reduce((acc, cur) => acc + cur) / rgbValues?.length);//rgb값의 평균으로 어두운지 밝은지 판단을 위한 변수
+
+    const onClickHandler = () => {
+        if (isLocalSave) {
+            localStorage.removeItem(data.id);
+            setIsLocalSave(false);
+        } else {
+            localStorage.setItem(data.id, JSON.stringify(data))
+            setIsLocalSave(true);
+        }
+    }
+
+    const [isLocalSave, setIsLocalSave] = useState(getLocalStorageToArray().some(item => item === data.id));
+
+    useEffect(() => {
+        setIsLocalSave(getLocalStorageToArray().some(item => item === data.id));
+        console.log(getLocalStorageToArray().some(item => item === data.id))
+    }, [data.id])
 
     return (
         <article className='card_container' style={{
@@ -45,19 +68,22 @@ const ChannelCard = ({ data }) => {
             backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0) 40%, ${color} 65%), url(${liveImage && liveImage})`,
             backgroundPosition: 'top center',
             backgroundRepeat: 'no-repeat',
-            color: color > 128 ? 'black' : 'white'
+            color: averageColor && averageColor > 128 ? 'black' : 'white'
         }}>
             <div className='liveImage_container'>
+                <button onClick={() => onClickHandler()}>
+                    <img src={isLocalSave ? "/img/notifications_fill.svg" : "/img/notifications.svg"} alt="notification_image" />
+                </button>
             </div>
 
             <div className='platform_container'>
                 {data.platform === 'chzzk' && <>
                     <img src='https://ssl.pstatic.net/static/nng/glive/icon/favicon.png' alt='chzzk_icon' width={20}></img>
-                    <p>치지직 </p>
+                    <p>치지직 {data.openDate && (diffTime < 60 ? diffTime + '분 전 시작' : Math.floor(diffTime / 60) + '시간 전 시작')}</p>
                 </>}
                 {data.platform === 'afreeca' && <>
                     <img src='https://res.afreecatv.com/afreeca.ico' alt='afreeca_icon' width={20}></img>
-                    <p>아프리카tv </p>
+                    <p>아프리카tv {data.openDate && (diffTime < 60 ? diffTime + '분 전 시작' : Math.floor(diffTime / 60) + '시간 전 시작')}</p>
                 </>}
             </div>
             <div className='info_container'>
