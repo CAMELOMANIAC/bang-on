@@ -9,3 +9,34 @@ body {
 code {
 	font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
+
+button {
+	background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+}
+
+a {
+	text-decoration: none;
+	color: inherit;
+}
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+/* 수평 스크롤바 제거 */
+html,
+body {
+	overflow-x: hidden;
+}
+
+img {
+	-webkit-user-drag: none;
+	user-select: none;
+}
