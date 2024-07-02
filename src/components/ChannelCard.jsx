@@ -63,40 +63,43 @@ const ChannelCard = ({ data }) => {
     }, [data.id])
 
     return (
-        <article className='card_container' style={{
-            backgroundSize: '400px',
-            backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0) 40%, ${color} 65%), url(${liveImage && liveImage})`,
-            backgroundPosition: 'top center',
-            backgroundRepeat: 'no-repeat',
-            color: averageColor && averageColor > 128 ? 'black' : 'white'
-        }}>
-            <div className='liveImage_container'>
-                <button onClick={() => onClickHandler()}>
-                    <img src={isLocalSave ? "/img/notifications_fill.svg" : "/img/notifications.svg"} alt="notification_image" />
-                </button>
-            </div>
+        <div className="card_container_border_round">
+            <article className='card_container' style={{
+                backgroundSize: `${data.liveImageUrl ? '400px' : 'contain'}`,
+                backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0) 40%, ${data.liveImageUrl ? color : '#111'} 65%), url(${liveImage && liveImage})`,
+                backgroundPosition: 'top center',
+                backgroundRepeat: 'no-repeat',
+                boxShadow: `${data.liveImageUrl ? "inset 0 0 10px 5px #111" : "none"}`,
+                color: averageColor && averageColor > 128 ? 'black' : 'white'
+            }}>
+                <div className='liveImage_container'>
+                    <button onClick={() => onClickHandler()}>
+                        <img src={isLocalSave ? "/img/notifications_fill.svg" : "/img/notifications.svg"} alt="notification_image" width={40} />
+                    </button>
+                </div>
 
-            <div className='platform_container'>
-                {data.platform === 'chzzk' && <>
-                    <img src='https://ssl.pstatic.net/static/nng/glive/icon/favicon.png' alt='chzzk_icon' width={20}></img>
-                    <p>치지직 {data.openDate && (diffTime < 60 ? diffTime + '분 전 시작' : Math.floor(diffTime / 60) + '시간 전 시작')}</p>
-                </>}
-                {data.platform === 'afreeca' && <>
-                    <img src='https://res.afreecatv.com/afreeca.ico' alt='afreeca_icon' width={20}></img>
-                    <p>아프리카tv {data.openDate && (diffTime < 60 ? diffTime + '분 전 시작' : Math.floor(diffTime / 60) + '시간 전 시작')}</p>
-                </>}
-            </div>
-            <div className='info_container'>
-                <div className='channelImage_container'>
-                    {data.platform === 'chzzk' && <img src={data.imageUrl || 'https://ssl.pstatic.net/static/nng/glive/icon/favicon.png'} alt='channel_image' className="channelImage"></img>}
-                    {data.platform === 'afreeca' && <img src={afreecaImage || 'https://res.afreecatv.com/afreeca.ico'} alt='channel_image' className="channelImage"></img>}
+                <div className='platform_container'>
+                    {data.platform === 'chzzk' && <>
+                        <img src='https://ssl.pstatic.net/static/nng/glive/icon/favicon.png' alt='chzzk_icon' width={20}></img>
+                        <p>치지직 {data.openDate && (diffTime < 60 ? diffTime + '분 전 시작' : Math.floor(diffTime / 60) + '시간 전 시작')}</p>
+                    </>}
+                    {data.platform === 'afreeca' && <>
+                        <img src='https://res.afreecatv.com/afreeca.ico' alt='afreeca_icon' width={20}></img>
+                        <p>아프리카tv {data.openDate && (diffTime < 60 ? diffTime + '분 전 시작' : Math.floor(diffTime / 60) + '시간 전 시작')}</p>
+                    </>}
                 </div>
-                <div className='channelInfo_container'>
-                    <h3 className='channelName'>{data.name}</h3>
-                    <p className='liveTitle'>{data.liveTitle || '휴뱅'}</p>
+                <div className='info_container'>
+                    <div className='channelImage_container'>
+                        {data.platform === 'chzzk' && <img src={data.imageUrl || 'https://ssl.pstatic.net/static/nng/glive/icon/favicon.png'} alt='channel_image' className="channelImage"></img>}
+                        {data.platform === 'afreeca' && <img src={afreecaImage || 'https://res.afreecatv.com/afreeca.ico'} alt='channel_image' className="channelImage"></img>}
+                    </div>
+                    <div className='channelInfo_container'>
+                        <h3 className='channelName'>{data.name}</h3>
+                        <p className='liveTitle'>{data.liveTitle || '휴뱅'}</p>
+                    </div>
                 </div>
-            </div>
-        </article>
+            </article>
+        </div >
     );
 };
 
