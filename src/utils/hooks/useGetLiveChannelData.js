@@ -89,6 +89,7 @@ const useGetLiveChannelData = (searchQuery) => {
 	const queriesIsIdle = queriesResults?.every((result) => result.isIdle === false);
 
 	const queriesResultsIsSuccess = queriesResults?.map((result) => result.isSuccess);
+	const queriesIsResultsIsSuccess = queriesResults?.every((result) => result.isSuccess === true);
 
 	//파싱 함수
 	const parseFunctions = {
@@ -109,7 +110,7 @@ const useGetLiveChannelData = (searchQuery) => {
 		}
 	}, [queriesIsLoading, queriesIsIdle, searchQuery]); // eslint-disable-line react-hooks/exhaustive-deps
 
-	return { resultsParseData };
+	return { queriesIsLoading, queriesIsResultsIsSuccess, resultsParseData };
 };
 
 export default useGetLiveChannelData;
