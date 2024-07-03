@@ -29,3 +29,26 @@ export const getLocalStorageToArray = () => {
 	}
 	return subscribedChannel;
 };
+
+/**
+ * 중복제거 및 liveTitle이 있는 아이템을 우선적으로 선택하는 함수
+ *
+ * @param {Object[]} items - 필터링할 객체 배열
+ * @param {string} items[].uniqueKey - 중복을 제거할 기준이 되는 키
+ * @param {string} items[].priorityKey - 우선적으로 선택할 아이템을 판단하는 키
+ * @returns {Object[]} - 중복된 아이템을 제거한 배열
+ */
+export const filterUniqueItemsWithPriority = (items, uniqueKey, priorityKey) => {
+	const itemsMap = new Map();
+
+	items.forEach((item) => {
+		const existingItem = itemsMap.get(item[uniqueKey]);
+		// 새 아이템에 liveTitle이 있거나 기존 아이템이 없는 경우, 아이템을 Map에 추가/업데이트합니다.
+		if (!existingItem || (item[priorityKey] && !existingItem[priorityKey])) {
+			itemsMap.set(item[uniqueKey], item);
+		}
+	});
+
+	// Map의 값들만 추출하여 배열로 반환합니다.
+	return Array.from(itemsMap.values());
+};
