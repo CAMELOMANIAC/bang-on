@@ -59,7 +59,6 @@ const ChannelCard = ({ data }) => {
 
     useEffect(() => {
         setIsLocalSave(getLocalStorageToArray().some(item => item === data.id));
-        console.log(getLocalStorageToArray().some(item => item === data.id))
     }, [data.id])
 
     return (
