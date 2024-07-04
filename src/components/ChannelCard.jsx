@@ -4,6 +4,7 @@ import "../styles/ChannelCard.css";
 import { useColor } from 'color-thief-react';
 import { getLocalStorageToArray } from "../utils/function/common";
 import React from "react";
+import { IoMdNotifications, IoMdNotificationsOutline } from "react-icons/io";
 //import { getLocalStorageToArray } from '../utils/function/common';
 
 const ChannelCard = ({ data }) => {
@@ -29,13 +30,15 @@ const ChannelCard = ({ data }) => {
     //치지직은 라이브 이미지의 src를 변경해야함(cors때문에 프록시를 거치도록 변경)
     const [liveImage, setLiveImage] = useState("/img/broadReady.svg");
     useEffect(() => {
-        if (data.platform === 'chzzk') {
+        if (data.isAdult) {
+            setLiveImage('/img/FBIWarning.jpg');
+        } else if (data.platform === 'chzzk') {
             const replaceUrl = data.liveImageUrl ? (data.liveImageUrl).replace('{type}', '480') : '/img/broadReady.svg';
             const proxyUrl = replaceUrl.replace('https://livecloud-thumb.akamaized.net/', '/chzzk_thumb/');
             setLiveImage(proxyUrl);
         } else
             setLiveImage(data.liveImageUrl || '/img/broadReady.svg');
-    }, [data.liveImageUrl, data.platform])
+    }, [data.isAdult, data.liveImageUrl, data.platform])
 
     const { data: color, } = useColor(liveImage, 'rgbString', {
         crossOrigin: 'anonymous',
@@ -45,7 +48,8 @@ const ChannelCard = ({ data }) => {
     const rgbValues = color?.replace('rgb(', '').replace(')', '').split(',').map(Number);
     const averageColor = rgbValues && (rgbValues.reduce((acc, cur) => acc + cur) / rgbValues?.length);//rgb값의 평균으로 어두운지 밝은지 판단을 위한 변수
 
-    const onClickHandler = () => {
+    const onClickHandler = (e) => {
+        e.preventDefault();
         if (isLocalSave) {
             localStorage.removeItem(data.id);
             setIsLocalSave(false);
@@ -62,7 +66,7 @@ const ChannelCard = ({ data }) => {
     }, [data.id])
 
     return (
-        <div className="card_container_border_round">
+        <a className="card_container_border_round" href={data.liveUrl && data.liveUrl} target="_blank" rel="noreferrer">
             <article className='card_container' style={{
                 backgroundSize: `${data.liveImageUrl ? '400px' : 'contain'}`,
                 backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0) 40%, ${data.liveImageUrl ? color : '#111'} 65%), url(${liveImage && liveImage})`,
@@ -72,8 +76,8 @@ const ChannelCard = ({ data }) => {
                 color: averageColor && averageColor > 128 ? 'black' : 'white'
             }}>
                 <div className='liveImage_container'>
-                    <button onClick={() => onClickHandler()}>
-                        <img src={isLocalSave ? "/img/notifications_fill.svg" : "/img/notifications.svg"} alt="notification_image" width={40} />
+                    <button onClick={(e) => onClickHandler(e)}>
+                        {isLocalSave ? <IoMdNotifications className="notification_button" /> : <IoMdNotificationsOutline className="notification_button" />}
                     </button>
                 </div>
 
@@ -98,7 +102,7 @@ const ChannelCard = ({ data }) => {
                     </div>
                 </div>
             </article>
-        </div >
+        </a >
     );
 };
 
