@@ -4,7 +4,7 @@
 }
 .card_container_border_round {
 	position: relative;
-	width: max-content;
+	width: 100%;
 	overflow: hidden;
 	border-top-left-radius: 50% 10px;
 	border-top-right-radius: 50% 10px;
@@ -22,7 +22,7 @@
 	border-bottom-right-radius: 10px 50%;
 	border-bottom-left-radius: 10px 50%;
 	padding: 20px;
-	width: 350px;
+	width: 100%;
 }
 .card_container_border_round::after {
 	position: absolute;
@@ -100,4 +100,9 @@
 	text-overflow: ellipsis;
 	text-align: start;
 	overflow: hidden;
+}
+.notification_button {
+	width: 40px;
+	height: 40px;
+	color: white;
 }

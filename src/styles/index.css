@@ -40,3 +40,9 @@ img {
 	-webkit-user-drag: none;
 	user-select: none;
 }
+
+body {
+	background-color: #111;
+	color: white;
+	text-shadow: 0.06rem 0 0.06rem #ea36af, -0.125rem 0 0.06rem #75fa69;
+}
