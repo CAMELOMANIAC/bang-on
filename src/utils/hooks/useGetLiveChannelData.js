@@ -16,16 +16,16 @@ import { useEffect, useState } from "react";
  * @property {boolean} [isAdult]
  * @property {string[] | null} [tags]
  * @property {string | null} [liveCategory]
- * @property {string} [liveUrl]
+ * @property {string | null} [liveUrl]
  */
 
 /**
  * 치지직, 아프리카 데이터를 가져오는 훅입니다.
  *
- * @param {string} searchQuery - 검색어 문자열입니다.
+ * @param {string} searchParams - 검색어 문자열입니다.
  * @returns {{ queriesIsLoading: boolean; queriesIsResultsIsSuccess: boolean; resultsParseData: ParsedData[]; }}
  */
-const useGetLiveChannelData = (searchQuery) => {
+const useGetLiveChannelData = (searchParams) => {
 	const queryKey = {
 		chzzk: 0,
 		afreeca: 1,
@@ -33,21 +33,21 @@ const useGetLiveChannelData = (searchQuery) => {
 	};
 	const queries = [
 		{
-			queryKey: [queryKey.chzzk, searchQuery],
-			queryFn: () => fetchChzzkData(searchQuery),
-			enabled: !!searchQuery,
+			queryKey: [queryKey.chzzk, searchParams],
+			queryFn: () => fetchChzzkData(searchParams),
+			enabled: !!searchParams,
 			staleTime: 1000 * 60 * 5
 		},
 		{
-			queryKey: [queryKey.afreeca, searchQuery],
-			queryFn: () => fetchAfreecaData(searchQuery),
-			enabled: !!searchQuery,
+			queryKey: [queryKey.afreeca, searchParams],
+			queryFn: () => fetchAfreecaData(searchParams),
+			enabled: !!searchParams,
 			staleTime: 1000 * 60 * 5
 		},
 		{
-			queryKey: [queryKey.afreecaLive, searchQuery],
-			queryFn: () => fetchAfreecaLiveData(searchQuery),
-			enabled: !!searchQuery,
+			queryKey: [queryKey.afreecaLive, searchParams],
+			queryFn: () => fetchAfreecaLiveData(searchParams),
+			enabled: !!searchParams,
 			staleTime: 1000 * 60 * 5
 		}
 	];
@@ -72,7 +72,7 @@ const useGetLiveChannelData = (searchQuery) => {
 					isAdult: data.content?.live?.adult || false,
 					tags: data.content?.live?.tags || null,
 					liveCategory: data.content?.live?.liveCategory || null,
-					liveUrl: `https://www.chzzk.com/live/${data.channel.channelId}`,
+					liveUrl: data.content?.live ? `https://chzzk.naver.com/live/${data.channel.channelId}` : null,
 					platform: "chzzk"
 			  }))
 			: [];
@@ -118,7 +118,7 @@ const useGetLiveChannelData = (searchQuery) => {
 					isAdult: false,
 					tags: [...item.category_tags, ...item.hash_tags] || null,
 					liveCategory: item.broad_cate_name || null,
-					liveUrl: item.url,
+					liveUrl: item.url ? "https://play.afreecatv.com/" + item.user_id + "/" + item.broad_no : null,
 					platform: "afreeca"
 			  }))
 			: [];
@@ -149,7 +149,7 @@ const useGetLiveChannelData = (searchQuery) => {
 					setResultParseData((prev) => [...prev, ...parseFunctions[index](queriesResults[index].data)]);
 			});
 		}
-	}, [queriesIsLoading, queriesIsIdle, searchQuery]); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [queriesIsLoading, queriesIsIdle, searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return { queriesIsLoading, queriesIsResultsIsSuccess, resultsParseData };
 };
