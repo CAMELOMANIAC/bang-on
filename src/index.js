@@ -4,14 +4,30 @@ import "./styles/index.css";
 import reportWebVitals from "./reportWebVitals";
 import { QueryClient, QueryClientProvider } from "react-query";
 import App from "./pages/App";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import Error from "./pages/Error";
+import Favorite from "./pages/Favorite";
+import GlobalNav from "./components/GlobalNav";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-
+const router = createBrowserRouter([
+	{
+		path: "/",
+		element: <App />,
+		errorElement: <Error />
+	},
+	{
+		path: "/favorite",
+		element: <Favorite />,
+		errorElement: <Error />
+	}
+]);
 const queryClient = new QueryClient();
 root.render(
 	<React.StrictMode>
 		<QueryClientProvider client={queryClient}>
-			<App />
+			<GlobalNav />
+			<RouterProvider router={router} />
 		</QueryClientProvider>
 	</React.StrictMode>
 );
