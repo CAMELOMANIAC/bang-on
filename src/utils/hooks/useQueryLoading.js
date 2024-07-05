@@ -6,12 +6,11 @@ import { useNavigate } from "react-router-dom";
  * 쿼리 로딩과 애니메이션을 관리하는 훅입니다.
  *
  * @param {{ current: HTMLInputElement | null }} searchContainerRef - 검색 결과를 감싸는 컨테이너의 ref 객체입니다.
- * @param {boolean} queriesIsLoading - 쿼리 로딩 상태입니다.
  * @param {{ current: HTMLInputElement | null }} inputRef - 검색어 input 요소의 ref 객체입니다.
- * @param {boolean} queriesIsResultsIsSuccess - 쿼리 결과가 성공적인지 여부입니다.
+ * @param {boolean} isSuccess - 쿼리 결과가 성공적인지 여부입니다.
  * @returns {{ onClickHandler: () => void; isLoading: boolean}} - 클릭 이벤트 핸들러와 로딩 상태값을 반환합니다.
  */
-const useQueryLoading = (searchContainerRef, queriesIsLoading, inputRef, queriesIsResultsIsSuccess) => {
+const useQueryLoading = (searchContainerRef, inputRef, isSuccess) => {
 	const [isLoading, setIsLoading] = useState(false);
 	const navigate = useNavigate();
 
@@ -20,7 +19,7 @@ const useQueryLoading = (searchContainerRef, queriesIsLoading, inputRef, queries
 		if (searchContainerRef.current) {
 			searchContainerRef.current.style.maxHeight = "60vw";
 		}
-		if (searchContainerRef.current && queriesIsLoading) {
+		if (searchContainerRef.current) {
 			searchContainerRef.current.classList.add("turn-off-anim");
 			searchContainerRef.current.classList.remove("turn-on-anim");
 		}
@@ -47,11 +46,11 @@ const useQueryLoading = (searchContainerRef, queriesIsLoading, inputRef, queries
 	}, [isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	useEffect(() => {
-		if (searchContainerRef.current && queriesIsResultsIsSuccess && !isLoading) {
+		if (searchContainerRef.current && isSuccess && !isLoading) {
 			searchContainerRef.current.classList.add("turn-on-anim");
 			searchContainerRef.current.classList.remove("turn-off-anim");
 		}
-	}, [queriesIsResultsIsSuccess, searchContainerRef.current, isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [isSuccess, searchContainerRef.current, isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return { onClickHandler, isLoading };
 };

@@ -15,13 +15,12 @@ function App() {
 	const inputRef = useRef(null);
 	/** @type {{ current: HTMLInputElement | null }} */
 	const searchContainerRef = useRef(null);
-	const { queriesIsLoading, queriesIsResultsIsSuccess, resultsParseData } = useGetLiveChannelData(searchParams);
-	const { queryData, sort, setSort } = useQueryData(searchParams, resultsParseData);
+	const { isSuccess, queriesResults } = useGetLiveChannelData(searchParams);
+	const { queryData, sort, setSort } = useQueryData(searchParams, queriesResults);
 	const { onClickHandler, isLoading } = useQueryLoading(
 		searchContainerRef,
-		queriesIsLoading,
 		inputRef,
-		queriesIsResultsIsSuccess
+		isSuccess
 	);
 
 	useEffect(() => {
