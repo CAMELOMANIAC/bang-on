@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import App from "./App";
-import { QueryClient, QueryClientProvider } from "react-query";
 import userEvent from "@testing-library/user-event";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // test("검색어 필드가 존재하는가?", () => {
 // 	const queryClient = new QueryClient();

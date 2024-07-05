@@ -2,12 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import "./styles/index.css";
 import reportWebVitals from "./reportWebVitals";
-import { QueryClient, QueryClientProvider } from "react-query";
 import App from "./pages/App";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Error from "./pages/Error";
 import Favorite from "./pages/Favorite";
 import GlobalNav from "./components/GlobalNav";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const router = createBrowserRouter([
