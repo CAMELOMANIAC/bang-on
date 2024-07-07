@@ -1,8 +1,3 @@
-.App {
-	text-align: center;
-	margin-left: 70px;
-}
-
 .App-logo {
 	height: 40vmin;
 	pointer-events: none;
@@ -15,7 +10,9 @@
 }
 
 .App {
-	min-height: 100vh;
+	text-align: center;
+	margin-left: 80px;
+	min-width: 1280px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;

@@ -2,7 +2,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import useGetLiveChannelData from "./useGetLiveChannelData";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-test("useGetLiveChannelData returns expected data", async () => {
+test("useGetLiveChannelData 후크가 알맞은 형태의 객체를 반환하는가?", async () => {
 	// QueryClient 인스턴스 생성
 	const queryClient = new QueryClient();
 

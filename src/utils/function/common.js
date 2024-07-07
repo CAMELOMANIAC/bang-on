@@ -13,10 +13,10 @@ export const convertJSONPToJSON = (jsonp) => {
  * 로컬 스토리지에서 스트리머 구독 정보를 가져와서 배열로 반환하는 함수입니다.
  * 각 키에 대해 로컬 스토리지에서 값을 가져오고, 이 값을 JSON으로 파싱합니다.
  * 파싱된 값이 존재하면, 이 값을 `subscribedChannel` 배열에 추가합니다.
- *
+ * @param {string} storageKey - 로컬 스토리지에서 값을 가져올 때 사용할 키.
  * @returns {string[]|[]} 로컬 스토리지에 저장된 스트리머 구독 정보의 배열.
  */
-export const getLocalStorageToArray = () => {
+export const getLocalStorageToArray = (storageKey) => {
 	//로컬스토리지의 스트리머 구독 정보를 가져옴
 	const subscribedChannel = [];
 	for (let key in localStorage) {
@@ -24,7 +24,7 @@ export const getLocalStorageToArray = () => {
 		if (value === null) continue;
 		const parsedValue = JSON.parse(value);
 		if (parsedValue) {
-			subscribedChannel.push(parsedValue.id);
+			subscribedChannel.push(parsedValue[storageKey]);
 		}
 	}
 	return subscribedChannel;
@@ -34,8 +34,8 @@ export const getLocalStorageToArray = () => {
  * 중복제거 및 liveTitle이 있는 아이템을 우선적으로 선택하는 함수
  *
  * @param {Object[]} items - 필터링할 객체 배열
- * @param {string} items[].uniqueKey - 중복을 제거할 기준이 되는 키
- * @param {string} items[].priorityKey - 우선적으로 선택할 아이템을 판단하는 키
+ * @param {string} uniqueKey - 중복을 제거할 기준이 되는 키
+ * @param {string} priorityKey - 우선적으로 선택할 아이템을 판단하는 키
  * @returns {Object[]} - 중복된 아이템을 제거한 배열
  */
 export const filterUniqueItemsWithPriority = (items, uniqueKey, priorityKey) => {

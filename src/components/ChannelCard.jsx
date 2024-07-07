@@ -5,7 +5,7 @@ import { useColor } from 'color-thief-react';
 import { getLocalStorageToArray } from "../utils/function/common";
 import React from "react";
 import { IoMdNotifications, IoMdNotificationsOutline } from "react-icons/io";
-//import { getLocalStorageToArray } from '../utils/function/common';
+import { useQueryClient } from "@tanstack/react-query";
 
 const ChannelCard = ({ data }) => {
     const currnetTime = new Date().getTime();
@@ -47,22 +47,25 @@ const ChannelCard = ({ data }) => {
 
     const rgbValues = color?.replace('rgb(', '').replace(')', '').split(',').map(Number);
     const averageColor = rgbValues && (rgbValues.reduce((acc, cur) => acc + cur) / rgbValues?.length);//rgb값의 평균으로 어두운지 밝은지 판단을 위한 변수
+    const queryClient = useQueryClient();
 
     const onClickHandler = (e) => {
+        const queryKey = data.platform === 'chzzk' ? data.name : data.id;
+        queryClient.invalidateQueries({ queryKey: [queryKey], refetchType: 'all' });
         e.preventDefault();
         if (isLocalSave) {
             localStorage.removeItem(data.id);
             setIsLocalSave(false);
         } else {
-            localStorage.setItem(data.id, JSON.stringify(data))
+            localStorage.setItem(data.id, JSON.stringify({ platform: data.platform, id: data.platform === 'chzzk' ? data.name : data.id }))
             setIsLocalSave(true);
         }
     }
 
-    const [isLocalSave, setIsLocalSave] = useState(getLocalStorageToArray().some(item => item === data.id));
+    const [isLocalSave, setIsLocalSave] = useState(getLocalStorageToArray('id').some(item => item === data.id));
 
     useEffect(() => {
-        setIsLocalSave(getLocalStorageToArray().some(item => item === data.id));
+        setIsLocalSave(getLocalStorageToArray('id').some(item => item === data.id));
     }, [data.id])
 
     return (

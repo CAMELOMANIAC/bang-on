@@ -88,7 +88,7 @@ const parseAfreecaLiveData = (data) => {
 				openDate: item.broad_start || null,
 				viewCount: item.current_view_cnt || null,
 				isAdult: false,
-				tags: [...item.category_tags, ...item.hash_tags] || null,
+				//tags: [...(item.category_tags || null), ...(item.hash_tags || null)] || null,
 				liveCategory: item.broad_cate_name || null,
 				liveUrl: item.url ? "https://play.afreecatv.com/" + item.user_id + "/" + item.broad_no : null,
 				platform: "afreeca"
@@ -102,7 +102,7 @@ const queryKey = {
 	afreecaLive: 2
 };
 //파싱 함수
-const parseFunctions = {
+export const parseFunctions = {
 	[queryKey.chzzk]: (data) => parseChzzkData(data),
 	[queryKey.afreeca]: (data) => parseAfreecaData(data),
 	[queryKey.afreecaLive]: (data) => parseAfreecaLiveData(data)
