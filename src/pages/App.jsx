@@ -7,6 +7,7 @@ import React from "react";
 import useQueryData, { sortType } from "../utils/hooks/useQueryData.js";
 import useQueryLoading from "../utils/hooks/useQueryLoading.js";
 import { useLocation } from "react-router-dom";
+import Chat from "../components/Chat.jsx";
 
 function App() {
 	const { search } = useLocation();
@@ -41,6 +42,7 @@ function App() {
 					<input type="search" ref={inputRef} aria-label="search" placeholder="스트리머 이름" />
 					<button onClick={onClickHandler}>검색</button>
 					{isLoading && "loading"}
+					<Chat></Chat>
 				</div>
 
 				<section className="search_container" ref={searchContainerRef}>
