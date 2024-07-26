@@ -52,3 +52,88 @@ export const filterUniqueItemsWithPriority = (items, uniqueKey, priorityKey) => 
 	// Map의 값들만 추출하여 배열로 반환합니다.
 	return Array.from(itemsMap.values());
 };
+
+/**
+ * 원형큐를 구현하기 위한 클래스입니다.
+ *
+ * @export
+ * @class CircleQueue
+ * @constructor
+ * @param {number} size 큐의 크기
+ * @example const queue = new CircleQueue(5);
+ */
+export class CircleQueue {
+	constructor(size) {
+		this.arr = new Array(size);
+		this.tailIndex = 0;
+		this.headIndex = 0;
+		this.size = size;
+	}
+
+	/**
+	 * 큐에 아이템을 추가합니다.
+	 *
+	 * @param {*} item
+	 */
+	enqueue(item) {
+		if (this.isFull()) {
+			this.headIndex = (this.headIndex + 1) % this.arr.length; // 가장 오래된 항목을 덮어씀
+		}
+		this.arr[this.tailIndex] = item;
+		this.tailIndex = (this.tailIndex + 1) % this.size;
+	}
+
+	/**
+	 * 큐에서 아이템을 제거하고 반환합니다.
+	 *
+	 * @throws {Error} 큐가 비어있을 때 발생합니다.
+	 * @returns {*}
+	 */
+	dequeue() {
+		if (this.isEmpty()) {
+			throw new Error("Queue is empty");
+		}
+		const item = this.arr[this.headIndex];
+		this.arr[this.headIndex] = null; // Clear the slot
+		this.headIndex = (this.headIndex + 1) % this.size;
+		return item;
+	}
+
+	/**
+	 * 큐의 첫 번째 아이템을 반환합니다(제거하지 않고 값만 반환합니다).
+	 *
+	 * @readonly
+	 * @returns {*}
+	 */
+	get peek() {
+		if (this.isEmpty()) {
+			throw new Error("Queue is empty");
+		}
+		return this.arr[this.headIndex];
+	}
+
+	/**
+	 * 큐의 모든 아이템을 반환합니다.
+	 *
+	 * @readonly
+	 * @type {Array}
+	 */
+	get list() {
+		const result = [];
+		for (let i = 0; i < this.size; i++) {
+			const index = (this.headIndex + i) % this.size;
+			if (this.arr[index] !== null) {
+				result.push(this.arr[index]);
+			}
+		}
+		return result;
+	}
+
+	isEmpty() {
+		return this.headIndex === this.tailIndex && !this.arr[this.headIndex];
+	}
+
+	isFull() {
+		return this.headIndex === this.tailIndex && !!this.arr[this.headIndex];
+	}
+}
