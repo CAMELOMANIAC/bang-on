@@ -44,14 +44,21 @@ const useGetFavoriteChannelData = () => {
 	});
 	const queriesResults = useQueries({
 		queries,
-		combine: (queries, index) => {
-			return queries
-				.map((query) => {
-					const platform = favoriteArray[index].platform;
-					if (query.isLoading) return { isLoading: true };
-					return parseFunctions[indexToPlatform[platform]](query.data);
-				})
-				.flat(2);
+		combine: (queries) => {
+			// 모든 쿼리가 로딩 중인지 확인
+			const allLoading = queries.every((query) => query.isLoading);
+
+			// 모든 쿼리가 로딩 중이면, isLoading만 반환
+			if (allLoading) {
+				return { isLoading: true };
+			}
+
+			// 모든 쿼리의 결과를 평탄화하여 반환
+			return queries.flatMap((query, index) => {
+				const platform = favoriteArray[index].platform;
+				// isLoading 상태는 여기서 무시되며, 데이터만 처리
+				return parseFunctions[indexToPlatform[platform]](query.data);
+			});
 		}
 	});
 
@@ -59,24 +66,25 @@ const useGetFavoriteChannelData = () => {
 	const [resultsParseData, setResultParseData] = useState([]);
 	const [isSuccess, setIsSuccess] = useState(false);
 	useEffect(() => {
-		if (queriesResults.every((item) => "id" in item)) setIsSuccess(true);
+		if (Array.isArray(queriesResults) && queriesResults.every((item) => "id" in item)) setIsSuccess(true);
 		else setIsSuccess(false);
+		console.log(queriesResults);
 	}, [queriesResults]);
 
 	useEffect(() => {
-		if (isSuccess) {
+		if (isSuccess && Array.isArray(queriesResults)) {
 			const uniqueDataWithPriority = filterUniqueItemsWithPriority(queriesResults, "id", "liveTitle");
 			const filterData = uniqueDataWithPriority.filter((item, index) => {
-				const platform = favoriteArray[index].platform;
-				if (platform !== "chzzk") {
-					return favorite.some((favorite) => favorite === item.id);
-				} else {
+				const platform = favoriteArray[index]?.platform;
+				if (platform === "chzzk") {
 					return favorite.some((favorite) => favorite === item.name);
+				} else {
+					return favorite.some((favorite) => favorite === item.id);
 				}
 			});
 			setResultParseData(filterData);
 		}
-	}, [isSuccess, queriesResults]);
+	}, [isSuccess, queriesResults]); // eslint-disable-line
 
 	return {
 		queriesResults: resultsParseData,
