@@ -1,0 +1,46 @@
+.chat_container {
+	display: flex;
+	flex-direction: column;
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	z-index: 1000;
+	pointer-events: none;
+	margin: 1rem;
+}
+.chat_container > ul {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	border-radius: 10px;
+}
+.chat_container > ul > li {
+	margin: 3px;
+	padding: 5px;
+	display: inline-block;
+	background-color: #333;
+	border-radius: 10px;
+}
+.input_container {
+	display: flex;
+	flex-direction: row;
+	border-radius: 10px;
+	pointer-events: all;
+}
+.input_container > input {
+	flex: 1;
+	padding: 5px;
+	border: none;
+	border-top-left-radius: 10px;
+	border-bottom-left-radius: 10px;
+}
+.input_container > button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #333;
+	height: 2rem;
+	width: 3rem;
+	border-top-right-radius: 10px;
+	border-bottom-right-radius: 10px;
+}
