@@ -64,52 +64,58 @@ export const filterUniqueItemsWithPriority = (items, uniqueKey, priorityKey) => 
  */
 export class CircleQueue {
 	constructor(size) {
-		this.arr = new Array(size);
-		this.tailIndex = 0;
-		this.headIndex = 0;
 		this.size = size;
+		this.queue = new Array(size);
+		this.head = 0;
+		this.tail = 0;
+		this.length = 0;
+		this.state = []; // 큐의 상태를 저장할 배열
 	}
 
 	/**
 	 * 큐에 아이템을 추가합니다.
+	 * 만약 큐가 가득차면 첫번째 인덱스부터 다시 채웁니다.
 	 *
 	 * @param {*} item
 	 */
 	enqueue(item) {
-		if (this.isFull()) {
-			this.headIndex = (this.headIndex + 1) % this.arr.length; // 가장 오래된 항목을 덮어씀
+		if (this.length === this.size) {
+			// 큐가 꽉 찼을 때 가장 오래된 요소를 덮어쓰기
+			this.head = (this.head + 1) % this.size;
+		} else {
+			this.length++;
 		}
-		this.arr[this.tailIndex] = item;
-		this.tailIndex = (this.tailIndex + 1) % this.size;
+		this.queue[this.tail] = item;
+		this.tail = (this.tail + 1) % this.size;
+		this._updateState(); // 상태 업데이트
 	}
 
 	/**
 	 * 큐에서 아이템을 제거하고 반환합니다.
+	 * 큐가 비어있으면 에러를 발생시킵니다.
 	 *
 	 * @throws {Error} 큐가 비어있을 때 발생합니다.
 	 * @returns {*}
 	 */
 	dequeue() {
-		if (this.isEmpty()) {
+		if (this.length === 0) {
 			throw new Error("Queue is empty");
 		}
-		const item = this.arr[this.headIndex];
-		this.arr[this.headIndex] = null; // Clear the slot
-		this.headIndex = (this.headIndex + 1) % this.size;
+		const item = this.queue[this.head];
+		this.head = (this.head + 1) % this.size;
+		this.length--;
+		this._updateState(); // 상태 업데이트
 		return item;
 	}
 
 	/**
-	 * 큐의 첫 번째 아이템을 반환합니다(제거하지 않고 값만 반환합니다).
-	 *
-	 * @readonly
-	 * @returns {*}
+	 * 큐의 상태를 미리 업데이트합니다.
 	 */
-	get peek() {
-		if (this.isEmpty()) {
-			throw new Error("Queue is empty");
+	_updateState() {
+		this.state = [];
+		for (let i = 0; i < this.length; i++) {
+			this.state.push(this.queue[(this.head + i) % this.size]);
 		}
-		return this.arr[this.headIndex];
 	}
 
 	/**
@@ -119,21 +125,6 @@ export class CircleQueue {
 	 * @type {Array}
 	 */
 	get list() {
-		const result = [];
-		for (let i = 0; i < this.size; i++) {
-			const index = (this.headIndex + i) % this.size;
-			if (this.arr[index] !== null) {
-				result.push(this.arr[index]);
-			}
-		}
-		return result;
-	}
-
-	isEmpty() {
-		return this.headIndex === this.tailIndex && !this.arr[this.headIndex];
-	}
-
-	isFull() {
-		return this.headIndex === this.tailIndex && !!this.arr[this.headIndex];
+		return this.state; // O(1) 시간 복잡도로 상태 반환
 	}
 }
