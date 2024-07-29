@@ -44,3 +44,16 @@
 	border-top-right-radius: 10px;
 	border-bottom-right-radius: 10px;
 }
+
+.animate_spinner {
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
