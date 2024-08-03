@@ -6,7 +6,6 @@ import useChat from '../utils/hooks/useChatData';
 import { createPortal } from 'react-dom';
 import useMouseData from '../utils/hooks/useMouseData';
 import Cursor from './Cursor';
-import useCursorAnimation from '../utils/hooks/useCursorAnimation';
 
 const Chat = () => {
     const {
@@ -18,8 +17,6 @@ const Chat = () => {
         mousePosition } = useChat();
     useMouseData(SocketRef);
     const liRefs = useRef([]);
-
-    //useEffect(() => { console.log(mousePosition) }, [mousePosition]);
 
     useEffect(() => {
         // 메시지가 많아지면 투명도를 조절합니다.(큐의 크기를 기준으로 함)
@@ -49,22 +46,16 @@ const Chat = () => {
         }
     };
 
-    const cursorRef = useRef([]);//커서를 참조하기 위한 배열(매번 생성되는 커서를 참조하기 위해 외부에서 참조)
-    useEffect(() => {//만약 mousePosition이 변경될때 필요없어진 ref의 크기를 줄여줍니다.
-        //cursorRef.current = cursorRef.current.slice(0, mousePosition.length);
-        //console.log(mousePosition);
-    }, [mousePosition]);
-    useCursorAnimation({ coordinates: mousePosition, elements: cursorRef.current });
-
     return (
         <div className='chat_container'>
             {createPortal(
-                mousePosition && mousePosition.map((item, index) =>
-                    <Cursor key={item + index}
+                Object.keys(mousePosition)?.map((item, index) =>
+                    <Cursor key={item}
                         className='other_cursor'
-                        user={item[0]}
-                        ref={el => cursorRef.current[index] = el} />), document.body
-            )}
+                        data={mousePosition[item]}
+                        name={item} />), document.body
+            )
+            }
             <ul>
                 {messageList && messageList.map((item, index) =>
                     item && <li key={index}
