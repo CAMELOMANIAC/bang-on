@@ -128,3 +128,30 @@ export class CircleQueue {
 		return this.state; // O(1) 시간 복잡도로 상태 반환
 	}
 }
+
+/**
+ * 데이터를 보간하는 함수입니다.
+ *
+ * @param {*} data - 원본 데이터
+ * @param {*} targetLength - 보간을 원하는 데이터의 길이
+ * @returns {{}}
+ */
+export const interpolateData = (data, targetLength) => {
+	const interpolatedData = [];
+	const step = (data.length - 1) / (targetLength - 1);
+
+	for (let i = 0; i < targetLength; i++) {
+		const index = i * step;
+		const lowerIndex = Math.floor(index);
+		const upperIndex = Math.ceil(index);
+		const t = index - lowerIndex;
+
+		const interpolatedX = data[lowerIndex].x * (1 - t) + data[upperIndex].x * t;
+		const interpolatedY = data[lowerIndex].y * (1 - t) + data[upperIndex].y * t;
+		const interpolatedTime = data[lowerIndex].time * (1 - t) + data[upperIndex].time * t;
+
+		interpolatedData.push({ x: interpolatedX, y: interpolatedY, time: interpolatedTime });
+	}
+
+	return interpolatedData;
+};
