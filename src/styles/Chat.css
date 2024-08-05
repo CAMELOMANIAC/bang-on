@@ -48,8 +48,8 @@
 	position: absolute;
 	left: 0;
 	top: 0;
+	pointer-events: none;
 }
-
 .animate_spinner {
 	animation: spin 1s linear infinite;
 }

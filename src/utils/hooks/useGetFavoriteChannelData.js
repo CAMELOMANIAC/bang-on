@@ -38,8 +38,7 @@ const useGetFavoriteChannelData = () => {
 		return {
 			queryKey: [favorite.id],
 			queryFn: () => fetchFunction[favorite.platform](favorite.id),
-			enabled: !!favorite.id,
-			staleTime: 1000 * 60 * 60
+			enabled: !!favorite.id
 		};
 	});
 	const queriesResults = useQueries({
@@ -68,7 +67,7 @@ const useGetFavoriteChannelData = () => {
 	useEffect(() => {
 		if (Array.isArray(queriesResults) && queriesResults.every((item) => "id" in item)) setIsSuccess(true);
 		else setIsSuccess(false);
-		console.log(queriesResults);
+		//console.log(queriesResults);
 	}, [queriesResults]);
 
 	useEffect(() => {

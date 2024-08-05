@@ -1,5 +1,5 @@
 //@ts-check
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import "../styles/GlobalNav.css";
 import { IoMdMenu, IoMdNotificationsOutline } from 'react-icons/io';
 import { BiSearch } from 'react-icons/bi';
