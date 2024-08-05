@@ -22,13 +22,16 @@ const useChat = () => {
 	const [messageList, setMessageList] = useState([]);
 	const location = useLocation();
 	const [mousePosition, setMousePosition] = useState([]);
+	const [isBackground, setIsBackground] = useState(false);
+	const [notificationMessage, setNotificationMessage] = useState("");
+	const [selfId, setSelfId] = useState("");
 
 	const queryParams = new URLSearchParams(location.search);
 	const searchParam = queryParams.get("search");
 
 	useEffect(() => {
 		// 서버 URL로 소켓 연결을 생성합니다.
-		SocketRef.current = io("http://localhost:80", {
+		SocketRef.current = io("http://192.168.0.22:80", {
 			reconnectionAttempts: 3 // 재연결 시도 횟수 설정
 		});
 
@@ -61,6 +64,7 @@ const useChat = () => {
 		SocketRef.current.on("messageToClient", (data) => {
 			messageQueue.current.enqueue(data);
 			setMessageList(messageQueue.current.list);
+			setNotificationMessage(data);
 		});
 
 		// 서버로부터 'mousePostionToClient' 이벤트를 수신하면 콘솔에 메시지를 출력합니다.
@@ -71,6 +75,44 @@ const useChat = () => {
 		return () => {
 			SocketRef.current.disconnect(); // 컴포넌트가 언마운트 될 때 소켓 연결을 끊습니다.(자동으로 이벤트들도 제거됩니다.)
 			setIsConnected(false);
+		};
+	}, [searchParam]);
+
+	//백그라운드 전환시 메세지 알림
+	useEffect(() => {
+		if (!isBackground) {
+			setNotificationMessage("");
+		}
+		if (isBackground && notificationMessage !== "") {
+			new Notification("채팅 알림", {
+				body: notificationMessage
+			});
+		}
+	}, [notificationMessage, isBackground]);
+
+	useEffect(() => {
+		const handleVisibilityChange = () => {
+			if (document.visibilityState === "hidden") {
+				setIsBackground(true);
+			} else {
+				setIsBackground(false);
+			}
+		};
+
+		const handleFocus = () => {
+			setIsBackground(false);
+		};
+		const handleBlur = () => {
+			setIsBackground(true);
+		};
+
+		document.addEventListener("visibilitychange", handleVisibilityChange); //브라우저 탭간 전환시 발생하는 이벤트
+		window.addEventListener("focus", handleFocus); //브라우저가 포커스를 얻었을때 발생하는 이벤트
+		window.addEventListener("blur", handleBlur); //브라우저가 포커스를 잃었을때 발생하는 이벤트
+		return () => {
+			document.removeEventListener("visibilitychange", handleVisibilityChange);
+			window.removeEventListener("focus", handleFocus);
+			window.removeEventListener("blur", handleBlur);
 		};
 	}, []);
 
