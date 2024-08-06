@@ -1,11 +1,10 @@
 //@ts-check
 import "../styles/App.css";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import useGetLiveChannelData from "../utils/hooks/useGetLiveChannelData.js";
 import ChannelCard from "../components/ChannelCard.jsx";
 import React from "react";
 import useQueryData, { sortType } from "../utils/hooks/useQueryData.js";
-import useQueryLoading from "../utils/hooks/useQueryLoading.js";
 import { useLocation } from "react-router-dom";
 import Chat from "../components/Chat.jsx";
 import useQueryLoadingAnimation from '../utils/hooks/useQueryLoadingAnimation';
@@ -17,7 +16,7 @@ function App() {
 	const searchContainerRef = useRef(null);
 	const { isSuccess, queriesResults } = useGetLiveChannelData(searchParams);
 	const { queryData, sort, setSort } = useQueryData(searchParams, queriesResults);
-	useQueryLoadingAnimation();
+	useQueryLoadingAnimation(isSuccess, searchContainerRef);
 	// const { onClickHandler, isLoading } = useQueryLoading(
 	// 	searchContainerRef,
 	// 	inputRef,
