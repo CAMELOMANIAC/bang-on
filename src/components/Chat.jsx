@@ -6,6 +6,7 @@ import useChat from '../utils/hooks/useChatData';
 import { createPortal } from 'react-dom';
 import useMouseData from '../utils/hooks/useMouseData';
 import Cursor from './Cursor';
+import { useSocketClientId } from '../utils/store/store';
 
 const Chat = () => {
     const {
@@ -17,6 +18,7 @@ const Chat = () => {
         mousePosition } = useChat();
     useMouseData(SocketRef);
     const liRefs = useRef([]);
+    const { clientId } = useSocketClientId();
 
     useEffect(() => {
         // 메시지가 많아지면 투명도를 조절합니다.(큐의 크기를 기준으로 함)
@@ -49,13 +51,13 @@ const Chat = () => {
     return (
         <div className='chat_container'>
             {createPortal(
-                Object.keys(mousePosition)?.map((item, index) =>
+                Object.keys(mousePosition)?.map((item) =>
+                    item !== clientId &&
                     <Cursor key={item}
                         className='other_cursor'
                         data={mousePosition[item]}
                         name={item} />), document.body
-            )
-            }
+            )}
             <ul>
                 {messageList && messageList.map((item, index) =>
                     item && <li key={index}
