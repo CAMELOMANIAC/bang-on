@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 
+/**
+ * 검색결과의 애니메이션을 관리하는 커스텀 후크
+ *
+ * @param {boolean} isSuccess - query검색완료여부
+ * @param {*} targetRef - 애니메이션을 적용할 검색결과 컨테이너
+ */
 const useQueryLoadingAnimation = (isSuccess, targetRef) => {
 	const location = useLocation();
 	const [isAnimating, setIsAnimating] = useState(false);
