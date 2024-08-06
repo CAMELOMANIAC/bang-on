@@ -6,20 +6,25 @@ import App from "./pages/App";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Error from "./pages/Error";
 import Favorite from "./pages/Favorite";
-import GlobalNav from "./components/GlobalNav";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Layout from "./pages/Layout";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 const router = createBrowserRouter([
 	{
 		path: "/",
-		element: <App />,
-		errorElement: <Error />
-	},
-	{
-		path: "/favorite",
-		element: <Favorite />,
-		errorElement: <Error />
+		element: <Layout />,
+		errorElement: <Error />,
+		children: [
+			{
+				index: true,
+				element: <App />
+			},
+			{
+				path: "/favorite",
+				element: <Favorite />
+			}
+		]
 	}
 ]);
 //tanstack/react-query의 QueryClient 인스턴스 생성
@@ -55,7 +60,6 @@ Notification.requestPermission().then((permission) => {
 root.render(
 	<React.StrictMode>
 		<QueryClientProvider client={queryClient}>
-			<GlobalNav />
 			<RouterProvider router={router} />
 		</QueryClientProvider>
 	</React.StrictMode>
