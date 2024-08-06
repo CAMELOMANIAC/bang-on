@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import io from "socket.io-client";
 import { useLocation } from "react-router-dom";
 import { CircleQueue } from "../function/common";
+import { useSocketClientId } from "../store/store";
 
 /**
  * chat 기능을 위한 custom hook
@@ -24,29 +25,33 @@ const useChat = () => {
 	const [mousePosition, setMousePosition] = useState([]);
 	const [isBackground, setIsBackground] = useState(false);
 	const [notificationMessage, setNotificationMessage] = useState("");
-	const [selfId, setSelfId] = useState("");
+	const { setClientId } = useSocketClientId();
 
 	const queryParams = new URLSearchParams(location.search);
 	const searchParam = queryParams.get("search");
 
 	useEffect(() => {
 		// 서버 URL로 소켓 연결을 생성합니다.
-		SocketRef.current = io("http://192.168.0.22:80", {
+		SocketRef.current = io("http://localhost:80", {
 			reconnectionAttempts: 3 // 재연결 시도 횟수 설정
 		});
 
 		// 웹소켓 연결 성공시 룸 연결 이벤트
-		SocketRef.current &&
-			SocketRef.current.on("connect", () => {
-				const roomName = searchParam || "lobby";
-				SocketRef.current.emit("join", roomName);
-				setIsConnected(true);
-			});
+		SocketRef.current.on("connect", () => {
+			const roomName = searchParam || "lobby";
+			SocketRef.current.emit("join", roomName);
+			setIsConnected(true);
+		});
 
 		// 연결 끊김 이벤트
 		SocketRef.current.on("disconnect", () => {
 			messageQueue.current.enqueue("서버와 연결이 끊겼습니다.");
 			setIsConnected(false);
+		});
+
+		// 웹소켓 연결시 클라이언트의 자기 식별번호를 전달해주는 이벤트
+		SocketRef.current.on("clientId", (data) => {
+			setClientId(data);
 		});
 
 		// 재연결 시도 이벤트
@@ -76,7 +81,7 @@ const useChat = () => {
 			SocketRef.current.disconnect(); // 컴포넌트가 언마운트 될 때 소켓 연결을 끊습니다.(자동으로 이벤트들도 제거됩니다.)
 			setIsConnected(false);
 		};
-	}, [searchParam]);
+	}, [searchParam, setClientId]);
 
 	//백그라운드 전환시 메세지 알림
 	useEffect(() => {
