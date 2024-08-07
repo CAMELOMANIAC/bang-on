@@ -44,12 +44,6 @@
 	border-top-right-radius: 10px;
 	border-bottom-right-radius: 10px;
 }
-.other_cursor {
-	position: absolute;
-	left: 0;
-	top: 0;
-	pointer-events: none;
-}
 .animate_spinner {
 	animation: spin 1s linear infinite;
 }
@@ -61,4 +55,23 @@
 	100% {
 		transform: rotate(360deg);
 	}
+}
+
+.other_cursor {
+	position: absolute;
+	left: 0;
+	top: 0;
+	pointer-events: none;
+}
+.cursor_name {
+	position: absolute;
+	pointer-events: none;
+}
+
+.giphy-embed {
+	position: absolute;
+	pointer-events: none;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
 }

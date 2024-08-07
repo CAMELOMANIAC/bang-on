@@ -7,6 +7,7 @@ import { createPortal } from 'react-dom';
 import useMouseData from '../utils/hooks/useMouseData';
 import Cursor from './Cursor';
 import { useSocketClientId } from '../utils/store/store';
+import SelfCursor from './SelfCursor';
 
 const Chat = () => {
     const {
@@ -58,6 +59,7 @@ const Chat = () => {
                         data={mousePosition[item]}
                         name={item} />), document.body
             )}
+            {createPortal(<SelfCursor clientId={clientId} />, document.body)}
             <ul>
                 {messageList && messageList.map((item, index) =>
                     item && <li key={index}
