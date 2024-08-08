@@ -128,11 +128,17 @@ export class CircleQueue {
 		return this.state; // O(1) 시간 복잡도로 상태 반환
 	}
 }
+/**
+ * @typedef {Object} MouseCoordinateDataType
+ * @property {number} x - x 좌표
+ * @property {number} y - y 좌표
+ * @property {number} time - 시간
+ */
 
 /**
  * 데이터를 보간하는 함수입니다.
  *
- * @param {*} data - 원본 데이터
+ * @param {MouseCoordinateDataType[]} data - 원본 데이터
  * @param {*} targetLength - 보간을 원하는 데이터의 길이
  * @returns {{}}
  */
@@ -154,4 +160,47 @@ export const interpolateData = (data, targetLength) => {
 	}
 
 	return interpolatedData;
+};
+
+/**
+ * 데이터 배열에서 거리를 계산하는 함수입니다.
+ *
+ * @param {MouseCoordinateDataType[]} data - 데이터 배열
+ * @returns {number[]} - 거리 배열
+ */
+export const calculateDistance = (data) => {
+	const speeds = [];
+
+	for (let i = 1; i < data.length; i++) {
+		const prev = data[i - 1];
+		const curr = data[i];
+
+		const timeDiff = (curr.time - prev.time) / 1000; // 시간 차이를 초 단위로 변환
+		const distance = Math.sqrt(Math.pow(curr.x - prev.x, 2) + Math.pow(curr.y - prev.y, 2)); // 유클리드 거리 계산
+
+		const speed = distance / timeDiff; // 속도 계산
+		speeds.push(Number.isNaN(speed) ? 0 : speed);
+	}
+
+	return speeds;
+};
+
+/**
+ * 두 엘리먼트가 교차하는지 확인합니다.
+ *
+ * @param {HTMLElement} element1
+ * @param {HTMLElement} element2
+ * @returns {boolean}
+ */
+export const isIntersecting = (element1, element2) => {
+	if (!element1 || !element2) return false;
+	const rect1 = element1.getBoundingClientRect();
+	const rect2 = element2.getBoundingClientRect();
+
+	return !(
+		rect1.right < rect2.left ||
+		rect1.left > rect2.right ||
+		rect1.bottom < rect2.top ||
+		rect1.top > rect2.bottom
+	);
 };
