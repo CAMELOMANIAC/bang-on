@@ -18,31 +18,49 @@ export const useSocketClientId = create((set) => ({
 }));
 
 /**
- * 커서 ref를 관리하는 store
+ * 커서의 ref를 전역에서 관리하기 위한 store
+ * @typedef {Object} MouseDataType
+ * @property {HTMLElement} target - 위치를 추적할 dom
+ * @property {boolean} isAnimating - 애니메이션 재생 여부
+ * @property {number} currentSpeed - 현재 속도
  */
-export const useCursorRefArray = create((set) => ({
+export const useMouseDataStore = create((set, get) => ({
 	/**
-	 * 커서 ref 배열
-	 * @type {Array}
+	 * 마우스 데이터 Map
+	 * @type {Map<HTMLElement, MouseDataType>}
 	 */
-	cursorRefArray: [],
+	mouseData: new Map(),
 	/**
-	 * 배열을 새로운 배열로 교체합니다.
-	 * @param {Array} newCursorRefArray
-	 * @returns
+	 * 마우스 데이터 Map에 새로운 마우스 데이터를 추가하거나 업데이트합니다.
+	 * @param {MouseDataType} newMouseData - 새로운 마우스 데이터
 	 */
-	setCursorRefArray: (newCursorRefArray) => set({ cursorRefArray: newCursorRefArray }),
+	setMouseData: (newMouseData) =>
+		set((state) => {
+			const newMouseDataMap = new Map(state.mouseData);
+			newMouseDataMap.set(newMouseData.target, newMouseData);
+			//console.log(newMouseDataMap);
+			return { mouseData: newMouseDataMap };
+		}),
 	/**
-	 * 새로운 커서 ref를 추가합니다.
-	 * @param {*} newCursorRef
-	 * @returns
+	 * 저장 되어있는 Map에서 특정 HTMLElement를 가진 마우스 데이터를 제거합니다.
+	 * @param {HTMLElement} key - 제거할 마우스 데이터의 HTMLElement형태의 키
 	 */
-	addCursorRef: (newCursorRef) => set((state) => ({ cursorRefArray: [...state.cursorRefArray, newCursorRef] })),
+	deleteMouseData: (key) =>
+		set((state) => {
+			const newMouseDataMap = new Map(state.mouseData);
+			newMouseDataMap.delete(key);
+			return { mouseData: newMouseDataMap };
+		}),
 	/**
-	 * 커서 ref를 제거합니다.
-	 * @param {*} cursorRef
-	 * @returns
+	 * mouseData를 일반 객체로 변환하여 반환합니다.
+	 * @returns {Object} 마우스 데이터 객체
 	 */
-	removeCursorRef: (cursorRef) =>
-		set((state) => ({ cursorRefArray: state.cursorRefArray.filter((item) => item !== cursorRef) }))
+	getMouseDataAsObject: () => {
+		const mouseDataMap = get().mouseData;
+		const mouseDataArray = [];
+		mouseDataMap.forEach((value) => {
+			mouseDataArray.push(value);
+		});
+		return mouseDataArray;
+	}
 }));
