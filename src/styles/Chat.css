@@ -62,10 +62,15 @@
 	left: 0;
 	top: 0;
 	pointer-events: none;
+	scale: 1;
 }
 .cursor_name {
 	position: absolute;
 	pointer-events: none;
+}
+.cursor_move {
+	scale: 2;
+	transition: all 0.1s;
 }
 
 .giphy-embed {
