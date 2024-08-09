@@ -4,11 +4,17 @@ import { interpolateData } from "../utils/function/common";
 import { useMouseDataStore } from "../utils/store/store";
 import { HiOutlineHandRaised } from "react-icons/hi2";
 import useSpeedAndDirection from "../utils/hooks/useSpeedAndDirection";
+import useCursorAnimation from "../utils/hooks/useCursorAnimation";
+import styled from "styled-components";
+
+export const PalmCursor = styled(HiOutlineHandRaised)`
+    rotate: ${props => props.angle || 0}deg;
+`
 
 const Cursor = ({ data, name, className }) => {
     const ref = useRef(null);
-    const { setMouseData, deleteMouseData } = useMouseDataStore();
-    const { speed } = useSpeedAndDirection(ref);
+    const { setMouseData, deleteMouseData, getMouseDataAsObject } = useMouseDataStore();
+    const { speed, angle } = useSpeedAndDirection(ref);
 
     useEffect(() => {
         const interpolateCoordinateData = interpolateData(data, 60)//끊켜보이지 않도록 위치정보를 60개로 보간
@@ -35,6 +41,8 @@ const Cursor = ({ data, name, className }) => {
         }
     }, [data]);//eslint-disable-line react-hooks/exhaustive-deps
 
+    const { isAnimating, isAvailableAnimation } = useCursorAnimation(ref, getMouseDataAsObject(), speed, angle);
+
     //커서 ref를 전역에서 관리하기위해 스토어에 추가합니다.
     useEffect(() => {
         const refCurrent = ref.current;
@@ -48,12 +56,21 @@ const Cursor = ({ data, name, className }) => {
         return () => {
             deleteMouseData(refCurrent);
         }
-    }, [speed]);//eslint-disable-line react-hooks/exhaustive-deps
+    }, [speed, isAnimating]);//eslint-disable-line react-hooks/exhaustive-deps
 
     return (
-        <div ref={ref} className={`${className} ${(speed > 4.5 && "cursor_move")}`}>
-            {speed > 4 ? <HiOutlineHandRaised /> : <FaMousePointer />}
-            <p className="cursor_name">{name}[{speed}]</p>
+        <div ref={ref} className={`${className} ${isAvailableAnimation && 'cursor_move'}`}>
+            {isAnimating ? <iframe
+                title="giphy"
+                src="https://giphy.com/embed/SySzx1gMQwpdq4DM54"
+                frameBorder="0"
+                className="giphy-embed"
+                allowFullScreen
+            ></iframe> : isAvailableAnimation ? <PalmCursor angle={angle} />
+                : <>
+                    <FaMousePointer />
+                    <p className="cursor_name">{name}</p>
+                </>}
         </div>
     );
 };
