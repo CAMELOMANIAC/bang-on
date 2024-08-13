@@ -1,3 +1,4 @@
+/** @jsxImportSource @emotion/react */
 import { useEffect, useRef } from "react";
 import { FaMousePointer } from "react-icons/fa";
 import { interpolateData } from "../utils/function/common";
@@ -5,11 +6,7 @@ import { useMouseDataStore } from "../utils/store/store";
 import { HiOutlineHandRaised } from "react-icons/hi2";
 import useSpeedAndDirection from "../utils/hooks/useSpeedAndDirection";
 import useCursorAnimation from "../utils/hooks/useCursorAnimation";
-import styled from "styled-components";
-
-export const PalmCursor = styled(HiOutlineHandRaised)`
-    rotate: ${props => props.angle || 0}deg;
-`
+import { rotatingStyle } from "../styles/cssObject";
 
 const Cursor = ({ data, name, className }) => {
     const ref = useRef(null);
@@ -41,7 +38,8 @@ const Cursor = ({ data, name, className }) => {
         }
     }, [data]);//eslint-disable-line react-hooks/exhaustive-deps
 
-    const { isAnimating, isAvailableAnimation } = useCursorAnimation(ref, getMouseDataAsObject(), speed, angle);
+    const cursorRefArray = getMouseDataAsObject();
+    const { isAnimating, isAvailableAnimation } = useCursorAnimation(ref, cursorRefArray, speed, angle);
 
     //커서 ref를 전역에서 관리하기위해 스토어에 추가합니다.
     useEffect(() => {
@@ -58,15 +56,19 @@ const Cursor = ({ data, name, className }) => {
         }
     }, [speed, isAnimating]);//eslint-disable-line react-hooks/exhaustive-deps
 
+
     return (
-        <div ref={ref} className={`${className} ${isAvailableAnimation && 'cursor_move'}`}>
+        <div
+            ref={ref}
+            className={`${className} ${isAvailableAnimation && 'cursor_move'}`}
+        >
             {isAnimating ? <iframe
                 title="giphy"
                 src="https://giphy.com/embed/SySzx1gMQwpdq4DM54"
                 frameBorder="0"
                 className="giphy-embed"
                 allowFullScreen
-            ></iframe> : isAvailableAnimation ? <PalmCursor angle={angle} />
+            ></iframe> : isAvailableAnimation ? <HiOutlineHandRaised css={rotatingStyle(angle, speed)} />
                 : <>
                     <FaMousePointer />
                     <p className="cursor_name">{name}</p>

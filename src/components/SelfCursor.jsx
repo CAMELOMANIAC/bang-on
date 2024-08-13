@@ -1,11 +1,11 @@
+/** @jsxImportSource @emotion/react */
 import { useEffect, useRef, useState } from "react";
 import { FaMousePointer } from "react-icons/fa";
 import { useMouseDataStore } from "../utils/store/store";
-import { HiOutlineHandRaised } from "react-icons/hi2";
 import useSpeedAndDirection from '../utils/hooks/useSpeedAndDirection';
 import useCursorAnimation from "../utils/hooks/useCursorAnimation";
-import { PalmCursor } from "./Cursor";
-
+import { HiOutlineHandRaised } from "react-icons/hi2";
+import { rotatingStyle } from "../styles/cssObject";
 
 const SelfCursor = ({ className, clientId }) => {
     const [selfMousePos, setSelfMousePos] = useState({ x: 0, y: 0 });
@@ -51,14 +51,17 @@ const SelfCursor = ({ className, clientId }) => {
     }, [ref, selfMousePos, isAnimating])
 
     return (
-        <div ref={ref} className={`${className} ${isAvailableAnimation && 'cursor_move'}`}>
+        <div
+            ref={ref}
+            className={`${className} ${isAvailableAnimation && 'cursor_move'}`}
+        >
             {isAnimating ? <iframe
                 title="giphy"
                 src="https://giphy.com/embed/SySzx1gMQwpdq4DM54"
                 frameBorder="0"
                 className="giphy-embed"
                 allowFullScreen
-            ></iframe> : isAvailableAnimation ? <PalmCursor angle={angle + 90} />
+            ></iframe> : isAvailableAnimation ? <HiOutlineHandRaised css={rotatingStyle(angle, speed)} />
                 : <>
                     <FaMousePointer />
                     <p className="cursor_name">{clientId}</p>
