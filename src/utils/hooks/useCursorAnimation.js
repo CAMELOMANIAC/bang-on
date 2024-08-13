@@ -55,8 +55,8 @@ const useCursorAnimation = (ref, cursorRefArray, speed, angle) => {
 	//속도가 10이상, 좌우로 움직이면 최소 0.3초간 isAvailableAnimation을 true로 설정합니다.
 	useEffect(() => {
 		if (
-			(speed > 10 && ((angle > 135 && angle < 180) || (angle > -180 && angle < -135))) ||
-			(speed > 10 && ((angle > -45 && angle < 0) || (angle > 0 && angle < 45)))
+			(speed > 10 && ((angle > 135 && angle <= 180) || (angle > -180 && angle < -135))) ||
+			(speed > 10 && ((angle > -45 && angle <= 0) || (angle > 0 && angle < 45)))
 		) {
 			setIsAvailableAnimation(true);
 			if (isAvailableAnimationTimer.current) {
