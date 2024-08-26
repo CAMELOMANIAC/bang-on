@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { isIntersecting } from "../function/common";
 
-const useCursorAnimation = (ref, cursorRefArray, speed, angle) => {
+const useCursorAnimation = (ref, cursorRefArray, speed, angle, setMouseData) => {
 	const [isIntersect, setIsIntersect] = useState(false);
 	const [isAnimating, setIsAnimating] = useState(false);
 	const [isAvailableAnimation, setIsAvailableAnimation] = useState(false);
 	const animationTimer = useRef(null);
 	const isAvailableAnimationTimer = useRef(null);
+
+	const [intersectingCursor, setIntersectingCursor] = useState();
 
 	//후크가 언마운트 되면 타이머 제거
 	useEffect(() => {
@@ -23,11 +25,16 @@ const useCursorAnimation = (ref, cursorRefArray, speed, angle) => {
 	//교차하는지 확인합니다.
 	useEffect(() => {
 		let isAnyIntersecting = false;
+		let intersectingItem = null;
 		cursorRefArray &&
 			cursorRefArray.forEach((item) => {
 				if (item.target === ref.current || !item) return;
 				if (isIntersecting(ref.current, item.target) && !item.isAnimating && item.currentSpeed > 1) {
 					isAnyIntersecting = true;
+					//교차된 아이템을 저장하고 교차된 아이템의 데이터를 수정합니다.
+					intersectingItem = item;
+					intersectingItem.isAnimating = true;
+					setIntersectingCursor(intersectingItem);
 				}
 			});
 		setIsIntersect(isAnyIntersecting);
@@ -37,8 +44,9 @@ const useCursorAnimation = (ref, cursorRefArray, speed, angle) => {
 	useEffect(() => {
 		if (isIntersect) {
 			setIsAnimating(true);
+			setMouseData(intersectingCursor);
 		}
-	}, [isIntersect]);
+	}, [intersectingCursor, isIntersect, setMouseData]);
 
 	//애니메이션을 실행합니다.
 	useEffect(() => {

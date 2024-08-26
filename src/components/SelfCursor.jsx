@@ -1,6 +1,5 @@
 /** @jsxImportSource @emotion/react */
 import { useEffect, useRef, useState } from "react";
-import { FaMousePointer } from "react-icons/fa";
 import { useMouseDataStore } from "../utils/store/store";
 import useSpeedAndDirection from '../utils/hooks/useSpeedAndDirection';
 import useCursorAnimation from "../utils/hooks/useCursorAnimation";
@@ -10,7 +9,7 @@ import { rotatingStyle } from "../styles/cssObject";
 const SelfCursor = ({ className, clientId }) => {
     const [selfMousePos, setSelfMousePos] = useState({ x: 0, y: 0 });
     const ref = useRef(null);
-    const { getMouseDataAsObject } = useMouseDataStore();
+    const { getMouseDataAsObject, setMouseData } = useMouseDataStore();
     const { speed, angle } = useSpeedAndDirection(ref)
 
     // //커서 ref를 전역에서 관리하기위해 스토어에 추가합니다.(우선 자기자신의 커서는 제외합니다. 나중에 넣을수도 있고...)
@@ -38,7 +37,7 @@ const SelfCursor = ({ className, clientId }) => {
 
     const cursorRefArray = getMouseDataAsObject();
     //커서 애니메이션 실행을 결정합니다.
-    const { isAnimating, isAvailableAnimation } = useCursorAnimation(ref, cursorRefArray, speed, angle);
+    const { isAnimating, isAvailableAnimation } = useCursorAnimation(ref, cursorRefArray, speed, angle, setMouseData);
 
     //실제 커서 위치로 렌더링합니다.
     useEffect(() => {
@@ -49,6 +48,14 @@ const SelfCursor = ({ className, clientId }) => {
             ref.current.style.position = 'absolute';
         }
     }, [ref, selfMousePos, isAnimating])
+
+    useEffect(() => {
+        if (isAvailableAnimation) {
+            document.body.style.cursor = 'none';
+        } else {
+            document.body.style.cursor = 'auto';
+        }
+    }, [isAvailableAnimation])
 
     return (
         <div
@@ -62,10 +69,8 @@ const SelfCursor = ({ className, clientId }) => {
                 className="giphy-embed"
                 allowFullScreen
             ></iframe> : isAvailableAnimation ? <HiOutlineHandRaised css={rotatingStyle(angle, speed)} />
-                : <>
-                    <FaMousePointer />
-                    <p className="cursor_name">{clientId}</p>
-                </>}
+                :
+                <p className="cursor_name">{clientId}</p>}
         </div>
     );
 };
