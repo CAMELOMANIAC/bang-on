@@ -41,6 +41,7 @@ const GlobalNav = () => {
                     <IoMdNotificationsOutline className='nav_button' />
                 </button>
                 {isSuccess && queriesResults.map((item, index) => (
+                    'platform' in item &&
                     <div className={`${isActive ? 'card_grow' : 'card_shrink'}`} key={index}>
                         <ChannelCard data={item}></ChannelCard>
                     </div>
