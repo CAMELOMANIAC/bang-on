@@ -63,14 +63,17 @@
 	top: 0;
 	pointer-events: none;
 	scale: 1;
+	transition: scale 0.1s;
+	z-index: 1000;
 }
 .cursor_name {
 	position: absolute;
 	pointer-events: none;
+	margin-top: 1rem;
 }
 .cursor_move {
-	scale: 2;
-	transition: all 0.1s;
+	scale: 2.5;
+	transition: scale 0.1s;
 }
 
 .giphy-embed {
