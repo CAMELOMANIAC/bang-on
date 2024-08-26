@@ -39,14 +39,14 @@ const Cursor = ({ data, name, className }) => {
     }, [data]);//eslint-disable-line react-hooks/exhaustive-deps
 
     const cursorRefArray = getMouseDataAsObject();
-    const { isAnimating, isAvailableAnimation } = useCursorAnimation(ref, cursorRefArray, speed, angle);
+    const { isAnimating, isAvailableAnimation } = useCursorAnimation(ref, cursorRefArray, speed, angle, setMouseData);
 
     //커서 ref를 전역에서 관리하기위해 스토어에 추가합니다.
     useEffect(() => {
         const refCurrent = ref.current;
         const mouseData = {
             target: refCurrent,
-            isAnimating: false,
+            isAnimating: isAnimating,
             currentSpeed: speed
         }
         setMouseData(mouseData);
@@ -54,8 +54,7 @@ const Cursor = ({ data, name, className }) => {
         return () => {
             deleteMouseData(refCurrent);
         }
-    }, [speed, isAnimating]);//eslint-disable-line react-hooks/exhaustive-deps
-
+    }, [speed]);//eslint-disable-line react-hooks/exhaustive-deps
 
     return (
         <div
